@@ -1,6 +1,6 @@
 ﻿namespace IsomorphicKeyboardSynthesizer
 {
-    partial class Form1
+    partial class Sythesizer
     {
         /// <summary>
         /// Required designer variable.
@@ -28,9 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.SuspendLayout();
+            // 
+            // Sythesizer
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(276, 236);
+            this.KeyPreview = true;
+            this.Name = "Sythesizer";
+            this.Text = "Synthesizer";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Sythesizer_KeyDown);
+            this.ResumeLayout(false);
+
         }
 
         #endregion
