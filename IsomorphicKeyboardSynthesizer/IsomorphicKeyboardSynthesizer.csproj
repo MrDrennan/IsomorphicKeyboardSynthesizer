@@ -45,6 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Oscillator.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Sythesizer.cs">
       <SubType>Form</SubType>
     </Compile>

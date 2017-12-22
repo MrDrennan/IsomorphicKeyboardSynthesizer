@@ -28,13 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.oscillator1 = new IsomorphicKeyboardSynthesizer.Oscillator();
             this.SuspendLayout();
+            // 
+            // oscillator1
+            // 
+            this.oscillator1.Location = new System.Drawing.Point(12, 12);
+            this.oscillator1.Name = "oscillator1";
+            this.oscillator1.Size = new System.Drawing.Size(508, 138);
+            this.oscillator1.TabIndex = 0;
+            this.oscillator1.TabStop = false;
+            this.oscillator1.Text = "oscillator1";
             // 
             // Sythesizer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(276, 236);
+            this.ClientSize = new System.Drawing.Size(553, 304);
+            this.Controls.Add(this.oscillator1);
             this.KeyPreview = true;
             this.Name = "Sythesizer";
             this.Text = "Synthesizer";
@@ -44,6 +55,8 @@
         }
 
         #endregion
+
+        private Oscillator oscillator1;
     }
 }
 
