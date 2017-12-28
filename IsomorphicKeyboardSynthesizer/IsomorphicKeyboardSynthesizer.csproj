@@ -48,11 +48,11 @@
     <Compile Include="Oscillator.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Sythesizer.cs">
+    <Compile Include="Synthesizer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Sythesizer.Designer.cs">
-      <DependentUpon>Sythesizer.cs</DependentUpon>
+    <Compile Include="Synthesizer.Designer.cs">
+      <DependentUpon>Synthesizer.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,8 +65,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Sythesizer.resx">
-      <DependentUpon>Sythesizer.cs</DependentUpon>
+    <EmbeddedResource Include="Synthesizer.resx">
+      <DependentUpon>Synthesizer.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

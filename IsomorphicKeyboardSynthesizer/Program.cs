@@ -16,7 +16,7 @@ namespace IsomorphicKeyboardSynthesizer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Sythesizer());
+            Application.Run(new Synthesizer());
         }
     }
 }

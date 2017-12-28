@@ -12,21 +12,23 @@ using System.IO;
 
 namespace IsomorphicKeyboardSynthesizer
 {
-    public partial class Sythesizer : Form
+    public partial class Synthesizer : Form
     {
         private const int SAMPLE_RATE = 44100;
         private const short BITS_PER_SAMPLE = 16;
         /// <summary>
         /// Max amplitude for 16 bit audio
         /// </summary>
-        private const int AMPLITUDE = 32760; 
-
-        public Sythesizer()
+        private const int AMPLITUDE = 32760;
+        private const byte CHANNELS = 1;
+        private const uint NUM_SAMPLES = SAMPLE_RATE * CHANNELS;
+         
+        public Synthesizer()
         {
             InitializeComponent();
         }
 
-        private void Sythesizer_KeyDown(object sender, KeyEventArgs e)
+        private void Synthesizer_KeyDown(object sender, KeyEventArgs e)
         {
             short[] wave = new short[SAMPLE_RATE];
 
@@ -181,12 +183,67 @@ namespace IsomorphicKeyboardSynthesizer
                 default:
                     return;
             }
-            
-            for (int i = 0; i < SAMPLE_RATE; i++)
-            {
-                wave[i] = Convert.ToInt16(AMPLITUDE * Math.Sin((Math.PI * 2 * currFrequency) / SAMPLE_RATE * i));
-            }
 
+            foreach (Oscillator oscillator in Controls.OfType<Oscillator>())
+            {
+                int samplesPerWavelength = Convert.ToInt32(SAMPLE_RATE / (currFrequency / CHANNELS));
+                short ampStep = Convert.ToInt16((AMPLITUDE * 2) / samplesPerWavelength);
+
+                switch (oscillator.WaveForm)
+                {
+                    case WaveForm.Sine:
+                        for (int i = 0; i < SAMPLE_RATE; i++)
+                        {
+                            wave[i] = Convert.ToInt16(AMPLITUDE * Math.Sin((Math.PI * 2 * currFrequency) / SAMPLE_RATE * i));
+                        }
+                        break;
+                    case WaveForm.Square:
+                        for (int i = 0; i < SAMPLE_RATE; i++)
+                        {
+                            wave[i] = Convert.ToInt16(AMPLITUDE * Math.Sign(Math.Sin((Math.PI * 2 * currFrequency) / SAMPLE_RATE * i)));
+                        }
+                        break;
+                    case WaveForm.Saw:
+                        short tempSample;
+                        for (int i = 0; i < NUM_SAMPLES; i++)
+                        {
+                            tempSample = (short)-AMPLITUDE;
+                            for (uint j = 0; j < samplesPerWavelength && i < NUM_SAMPLES; j += CHANNELS)
+                            {
+                                tempSample += ampStep;
+                                for (int channel = 0; channel < CHANNELS && i < NUM_SAMPLES; channel++)
+                                {
+                                    wave[i++] = Convert.ToInt16(tempSample);
+                                }
+                            }
+                            i--;
+                        }
+                        break;
+                    case WaveForm.Triangle:
+                        tempSample = (short)-AMPLITUDE;
+                        for (int i = 0; i < NUM_SAMPLES - CHANNELS; i += CHANNELS)
+                        {
+                            for (int channel = 0; channel < CHANNELS; channel++)
+                            {
+                                // Negate ampstep whenever it hits the amplitude boundary
+                                if (Math.Abs(tempSample + ampStep) > AMPLITUDE)
+                                {
+                                    ampStep = (short)-ampStep;
+                                }
+                                tempSample += ampStep;
+                                wave[i + channel] = Convert.ToInt16(tempSample);
+                            }
+                        }
+                        break;
+                    case WaveForm.Noise:
+                        Random rnd = new Random();
+                        for (int i = 0; i < NUM_SAMPLES; i++)
+                        {
+                            wave[i] = Convert.ToInt16(rnd.Next(-AMPLITUDE, AMPLITUDE));
+                        }
+                        break;
+                }
+            }
             using (MemoryStream memory = new MemoryStream())
             using (BinaryWriter binaryWriter = new BinaryWriter(memory))
             {

@@ -1,6 +1,6 @@
 ﻿namespace IsomorphicKeyboardSynthesizer
 {
-    partial class Sythesizer
+    partial class Synthesizer
     {
         /// <summary>
         /// Required designer variable.
@@ -49,7 +49,7 @@
             this.KeyPreview = true;
             this.Name = "Sythesizer";
             this.Text = "Synthesizer";
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Sythesizer_KeyDown);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Synthesizer_KeyDown);
             this.ResumeLayout(false);
 
         }
