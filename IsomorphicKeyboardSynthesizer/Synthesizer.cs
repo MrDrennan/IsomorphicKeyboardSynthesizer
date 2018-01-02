@@ -21,7 +21,7 @@ namespace IsomorphicKeyboardSynthesizer
         /// </summary>
         private const int AMPLITUDE = 32760;
         private const byte CHANNELS = 1;
-        private const uint NUM_SAMPLES = SAMPLE_RATE * CHANNELS;
+        private const int NUM_SAMPLES = SAMPLE_RATE * CHANNELS;
          
         public Synthesizer()
         {
@@ -30,7 +30,7 @@ namespace IsomorphicKeyboardSynthesizer
 
         private void Synthesizer_KeyDown(object sender, KeyEventArgs e)
         {
-            short[] wave = new short[SAMPLE_RATE];
+            short[] wave = new short[NUM_SAMPLES];
 
             float[] frequencies = new float[38]; // range of used frequencies
             byte startNote = 28; // the key number to start at on a piano
@@ -186,25 +186,28 @@ namespace IsomorphicKeyboardSynthesizer
 
             foreach (Oscillator oscillator in Controls.OfType<Oscillator>())
             {
-                int samplesPerWavelength = Convert.ToInt32(SAMPLE_RATE / (currFrequency / CHANNELS));
-                short ampStep = Convert.ToInt16((AMPLITUDE * 2) / samplesPerWavelength);
+                int samplesPerWavelength = Convert.ToInt32(NUM_SAMPLES / (int)currFrequency);
+                int remainderSamples = Convert.ToInt32(NUM_SAMPLES % (int)currFrequency);
+                // samplesPerWaveLength - CHANNELS for fenceposts
+                short ampStep = Convert.ToInt16((AMPLITUDE * 2) / (samplesPerWavelength - CHANNELS));
 
                 switch (oscillator.WaveForm)
                 {
                     case WaveForm.Sine:
-                        for (int i = 0; i < SAMPLE_RATE; i++)
+                        for (int i = 0; i < NUM_SAMPLES; i++)
                         {
                             wave[i] = Convert.ToInt16(AMPLITUDE * Math.Sin((Math.PI * 2 * currFrequency) / SAMPLE_RATE * i));
                         }
                         break;
                     case WaveForm.Square:
-                        for (int i = 0; i < SAMPLE_RATE; i++)
+                        for (int i = 0; i < NUM_SAMPLES; i++)
                         {
                             wave[i] = Convert.ToInt16(AMPLITUDE * Math.Sign(Math.Sin((Math.PI * 2 * currFrequency) / SAMPLE_RATE * i)));
                         }
                         break;
                     case WaveForm.Saw:
-                        short tempSample;
+                        short currSample;
+                        /*
                         for (int i = 0; i < NUM_SAMPLES; i++)
                         {
                             tempSample = (short)-AMPLITUDE;
@@ -218,20 +221,61 @@ namespace IsomorphicKeyboardSynthesizer
                             }
                             i--;
                         }
+                        */
+                        // For every wave length reset amplitude, for every sample increment the amplitude,
+                        // write to every channel
+                        for (int i = 0; i < (int)currFrequency; i++)
+                        {
+                            currSample = (short)-AMPLITUDE;
+
+                            // fencepost loop
+                            for (int channel = 0; channel < CHANNELS; channel++)
+                            {
+                                wave[i * samplesPerWavelength + channel] = Convert.ToInt16(currSample);
+                            }
+
+                            for (int j = CHANNELS; j < samplesPerWavelength; j += CHANNELS)
+                            {
+                                currSample += ampStep;
+                                for (int channel = 0; channel < CHANNELS; channel++)
+                                {
+                                    wave[i * samplesPerWavelength + j + channel] = Convert.ToInt16(currSample);
+                                }
+                            }
+                        }
+
+                        //  samples that do not make a complete wavelength
+                        int indexStart = NUM_SAMPLES - remainderSamples;
+                        currSample = (short)-AMPLITUDE;
+
+                        // fencepost loop
+                        for (int channel = 0; channel < remainderSamples && channel < CHANNELS; channel++)
+                        {
+                            wave[indexStart + channel] = Convert.ToInt16(currSample);
+                        }
+
+                        for (int i = CHANNELS; i < remainderSamples; i += CHANNELS)
+                        {
+                            currSample += ampStep;
+                            for (int channel = 0; channel < remainderSamples && channel < CHANNELS; channel++)
+                            {
+                                wave[indexStart + i + channel] = Convert.ToInt16(currSample);
+                            }
+                        }
                         break;
                     case WaveForm.Triangle:
-                        tempSample = (short)-AMPLITUDE;
+                        currSample = (short)-AMPLITUDE;
                         for (int i = 0; i < NUM_SAMPLES - CHANNELS; i += CHANNELS)
                         {
                             for (int channel = 0; channel < CHANNELS; channel++)
                             {
                                 // Negate ampstep whenever it hits the amplitude boundary
-                                if (Math.Abs(tempSample + ampStep) > AMPLITUDE)
+                                if (Math.Abs(currSample + ampStep) > AMPLITUDE)
                                 {
                                     ampStep = (short)-ampStep;
                                 }
-                                tempSample += ampStep;
-                                wave[i + channel] = Convert.ToInt16(tempSample);
+                                currSample += ampStep;
+                                wave[i + channel] = Convert.ToInt16(currSample);
                             }
                         }
                         break;
